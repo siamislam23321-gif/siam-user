@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<title>User System</title>
+<title>Firebase User System</title>
 </head>
 <body>
 
@@ -39,6 +39,7 @@ import {
 import { getFirestore, doc, setDoc }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// 🔹 Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyDI5zlA8EgHyQ5GJUkraLUSYQ_R9BKJlao",
   authDomain: "siam-user.firebaseapp.com",
@@ -49,45 +50,64 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 🔹 Signup + Database save
+// 🔹 Signup Function
 window.signup = async () => {
   try {
-    const userCred = await createUserWithEmailAndPassword(
-      auth, sEmail.value, sPassword.value
-    );
+    const userName = document.getElementById("name").value.trim();
+    const email = document.getElementById("sEmail").value.trim();
+    const password = document.getElementById("sPassword").value;
+
+    if(!userName || !email || !password){
+      alert("সব ফিল্ড পূরণ করুন!");
+      return;
+    }
+
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
 
     await setDoc(doc(db, "users", userCred.user.uid), {
-      name: name.value,
-      email: sEmail.value,
+      name: userName,
+      email: email,
       role: "user",
       createdAt: new Date()
     });
 
-    msg.innerText = "Signup সফল হয়েছে ✅";
+    document.getElementById("msg").innerText = "Signup সফল হয়েছে ✅";
   } catch (e) {
-    msg.innerText = e.message;
+    document.getElementById("msg").innerText = e.message;
   }
 };
 
-// 🔹 Login
+// 🔹 Login Function
 window.login = async () => {
   try {
-    await signInWithEmailAndPassword(
-      auth, lEmail.value, lPassword.value
-    );
-    msg.innerText = "Login সফল 🎉";
+    const email = document.getElementById("lEmail").value.trim();
+    const password = document.getElementById("lPassword").value;
+
+    if(!email || !password){
+      alert("Email ও Password লিখুন!");
+      return;
+    }
+
+    await signInWithEmailAndPassword(auth, email, password);
+    document.getElementById("msg").innerText = "Login সফল 🎉";
   } catch (e) {
-    msg.innerText = e.message;
+    document.getElementById("msg").innerText = e.message;
   }
 };
 
-// 🔹 Forget Password
+// 🔹 Forget Password Function
 window.resetPassword = async () => {
   try {
-    await sendPasswordResetEmail(auth, fEmail.value);
-    msg.innerText = "📧 ইমেইলে পাসওয়ার্ড রিসেট লিংক পাঠানো হয়েছে";
+    const email = document.getElementById("fEmail").value.trim();
+    if(!email){
+      alert("Email লিখুন!");
+      return;
+    }
+
+    await sendPasswordResetEmail(auth, email);
+    document.getElementById("msg").innerText = "📧 ইমেইলে পাসওয়ার্ড রিসেট লিংক পাঠানো হয়েছে";
   } catch (e) {
-    msg.innerText = e.message;
+    document.getElementById("msg").innerText = e.message;
   }
 };
 </script>
